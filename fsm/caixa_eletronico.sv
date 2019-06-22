@@ -38,7 +38,7 @@ module top(input  logic clk_2,
            output logic lcd_MemWrite, lcd_Branch, lcd_MemtoReg, lcd_RegWrite);
 
   // Estados
-  parameter INICIO=0, VALOR1=1, VALOR2=2, VALOR3=3, VALIDA_SENHA=4, SAI_DINHEIRO=5, DESTROI_CARTAO=6;
+  parameter INICIO=0, RECEBE_VALOR1=1, RECEBE_VALOR2=2, RECEBE_VALOR3=3, VALIDA_SENHA=4, SAI_DINHEIRO=5, DESTROI_CARTAO=6;
 
   logic reset, cartao, dinheiro, destroi;
   logic [2:0] state;
@@ -69,19 +69,19 @@ module top(input  logic clk_2,
           val2 <= 0;
           val3 <= 0;
 
-          if(cartao && cod == 0) state <= VALOR1;
+          if(cartao && cod == 0) state <= RECEBE_VALOR1;
           else state <= INICIO;
         end
         RECEBE_VALOR1: begin
           if(cod != 0) begin
             val1 <= cod;
-            state <= VALOR2;
+            state <= RECEBE_VALOR2;
           end
         end
         RECEBE_VALOR2: begin
           if(cod != val1) begin
             val2 <= cod;
-            state <= VALOR3;
+            state <= RECEBE_VALOR3;
           end
         end
         RECEBE_VALOR3: begin

@@ -37,7 +37,7 @@ module top(input  logic clk_2,
              lcd_ALUResult, lcd_Result, lcd_WriteData, lcd_ReadData, 
            output logic lcd_MemWrite, lcd_Branch, lcd_MemtoReg, lcd_RegWrite);
 
-  // Estados
+  //  Estados
   parameter INICIO=0, RECEBE_VALOR1=1, RECEBE_VALOR2=2, RECEBE_VALOR3=3, VALIDA_SENHA=4, SAI_DINHEIRO=5, DESTROI_CARTAO=6;
 
   logic reset, cartao, dinheiro, destroi;
@@ -45,16 +45,14 @@ module top(input  logic clk_2,
   logic [2:0] cod, val1, val2, val3;
   logic [1:0] cont_erro;
 
+  //  Entradas
   always_comb begin
     reset <= SWI[0];
     cartao <=  SWI[1];
     cod <= SWI[6:4];
-
-    LED[0] <= dinheiro;
-    LED[1] <= destroi;
-    LED[7] <= clk_2;
   end
 
+  //  Execução do loop da máquina de estados
   always_ff@(posedge clk_2 or posedge reset) begin
     if(reset) begin
       destroi <= 0;
@@ -64,32 +62,36 @@ module top(input  logic clk_2,
     end
     else begin
       unique case (state)
+
         INICIO: begin
           val1 <= 0;
           val2 <= 0;
           val3 <= 0;
 
           if(cartao && cod == 0) state <= RECEBE_VALOR1;
-          else state <= INICIO;
         end
+
         RECEBE_VALOR1: begin
           if(cod != 0) begin
             val1 <= cod;
             state <= RECEBE_VALOR2;
           end
         end
+
         RECEBE_VALOR2: begin
           if(cod != val1) begin
             val2 <= cod;
             state <= RECEBE_VALOR3;
           end
         end
+
         RECEBE_VALOR3: begin
           if(cod != val2) begin
             val3 <= cod;
             state <= VALIDA_SENHA;
           end
         end
+
         VALIDA_SENHA: begin
           if(val1 == 1 && val2 == 3 && val3 == 7) state <= SAI_DINHEIRO;
           else begin
@@ -99,13 +101,20 @@ module top(input  logic clk_2,
             else state <= INICIO;
           end   
         end
+
         SAI_DINHEIRO: dinheiro <= 1;
+
         DESTROI_CARTAO: destroi <= 1;
       endcase 
     end
   end
 
+  // Saídas
   always_comb begin
+    LED[0] <= dinheiro;
+    LED[1] <= destroi;
+    LED[7] <= clk_2;
+
     unique case (state)
         0: SEG <= 8'b00111111;
         1: SEG <= 8'b00000110;

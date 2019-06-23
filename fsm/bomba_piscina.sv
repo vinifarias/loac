@@ -49,11 +49,13 @@ module top(input  logic clk_2,
   logic [1:0] state;
   logic [2:0] cont_sol_insuf;
 
+  //  Entradas
   always_comb begin
     reset <= SWI[0];
     sol <= SWI[1];
   end
 
+  //  Execução do loop da máquina de estados
   always_ff@(posedge clk_2 or posedge reset) begin
     if(reset) begin
       painel <= 0;
@@ -62,6 +64,7 @@ module top(input  logic clk_2,
     end
     else begin
       unique case (state)
+
         PAINEL: begin
           rede <= 0;
           if(cont_sol_insuf > 1) begin
@@ -81,10 +84,12 @@ module top(input  logic clk_2,
           rede <= 0;
           cont_sol_insuf <= cont_sol_insuf + 1;
         end
+
       endcase
     end
   end
 
+  //  Definição do estado a partir das entradas
   always_comb begin
     if(sol) state <= PAINEL;
     else begin
@@ -93,11 +98,11 @@ module top(input  logic clk_2,
     end
   end
 
+  //  Saídas
   always_comb begin
     LED[0] <= painel;
     LED[1] <= rede;
     LED[7] <= clk_2;
-
     LED[6:4] <= cont_sol_insuf;
 
     unique case (state)

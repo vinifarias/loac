@@ -54,6 +54,12 @@ module top(input  logic clk_2,
   logic reset, caju, cacau, alarme, cacau_cont;
   logic [1:0] chuva, dil_cont, pc_cont, nc_cont, chuva_anterior;
   logic [2:0] est_atual;
+  logic [24:0] clock_lento;
+
+  //  Clock lento
+  always_ff@(posedge clk_2) begin
+    clock_lento <= clock_lento + 1;
+  end
 
   //  Entradas
   always_comb begin
@@ -62,7 +68,7 @@ module top(input  logic clk_2,
   end
 
   //  Execução do loop da máquina de estados
-  always_ff @(posedge clk_2 or posedge reset) begin
+  always_ff @(posedge clock_lento[0] or posedge reset) begin
     if(reset) begin
       caju <= 0;
       cacau <= 0;
@@ -144,7 +150,7 @@ module top(input  logic clk_2,
     LED[0] <= caju;
     LED[1] <= cacau;
     LED[2] <= alarme;
-    LED[7] <= clk_2;
+    LED[7] <= clock_lento[0];
   end
 
 endmodule
